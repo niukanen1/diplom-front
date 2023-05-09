@@ -5,6 +5,11 @@ import { SafeAreaView } from "react-native";
 import { getAuthError } from "../../../Services/ErrorHandlers/FirebaseErrors/authErrorHandler";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "../../../Services/firebase/firebaseinit";
+import {
+	UpdateUserData,
+	checkIfUserAdmin,
+} from "../../../Services/firebase/queries/UserInfoQueries";
+import { Role } from "../../../entities/roles";
 
 export default function SignUpView({ navigation }: any) {
 	const [signUpData, setSignUpData] = useState<SignUpDataType>({
@@ -71,7 +76,7 @@ export default function SignUpView({ navigation }: any) {
 								}}
 							/>
 						</FormControl>
-						<FormControl isRequired isInvalid={passwordsNotMatching} >
+						<FormControl isRequired isInvalid={passwordsNotMatching}>
 							<FormControl.Label>Подтверждение</FormControl.Label>
 							<Input
 								size={"2xl"}
@@ -81,9 +86,7 @@ export default function SignUpView({ navigation }: any) {
 									setSignUpData({ ...signUpData, passwordConfirmation: pass });
 								}}
 							/>
-                            <FormControl.ErrorMessage>
-                                Пароли не совпадают
-                            </FormControl.ErrorMessage>
+							<FormControl.ErrorMessage>Пароли не совпадают</FormControl.ErrorMessage>
 						</FormControl>
 					</VStack>
 					<Button
@@ -91,7 +94,17 @@ export default function SignUpView({ navigation }: any) {
 						size={"lg"}
 						isLoading={loading}
 						onPress={() => {
-							signUp(signUpData.email, signUpData.password);
+							signUp(signUpData.email, signUpData.password).then(async (userCred) => {
+								if (userCred?.user) {
+									const isAdmin = await checkIfUserAdmin(userCred.user.uid);
+									UpdateUserData(userCred.user.uid, {
+										uid: userCred.user.uid,
+										role: isAdmin ? Role.admin : Role.student,
+										group: "",
+										councilId: "",
+									});
+								}
+							});
 						}}>
 						Зарегистрироваться
 					</Button>

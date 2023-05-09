@@ -1,7 +1,12 @@
 export type admin = { 
-    schoolHouse: schoolHouse, 
+    id: string; 
+    // schoolHouse: schoolHouse, 
 }
 
+export enum Role { 
+    admin = "Admin",
+    student = "Student",
+}
 
 
 export enum schoolHouse { 
