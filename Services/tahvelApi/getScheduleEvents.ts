@@ -1,25 +1,24 @@
-import { schoolId } from './../../global';
+import { schoolId } from "./../../global";
 import axios from "axios";
 import { scheduleEvent } from "../../entities/scheduleEvent";
-
 export default async function getScheduleEvents(
     fromDate: string,
     toDate: string,
-    groupId: string | null = null,
-    teacherId: string | null = null,
-    roomId: string | null = null
+    groupId?: string | null,
+    teacherId?: string | null,
+    roomId?: string | null
 ): Promise<scheduleEvent[]> {
-    const url = new URL(`https://tahvel.edu.ee/hois_back/timetableevents/`);
+    let url = `https://tahvel.edu.ee/hois_back/timetableevents/`;
     const params = new URLSearchParams();
 
     if (groupId) {
-        url.pathname += `timetableByGroup/${schoolId}`;
+        url += `timetableByGroup/${schoolId}`;
         params.append("studentGroups", groupId);
     } else if (teacherId) {
-        url.pathname += `timetableByTeacher/${schoolId}`;
+        url += `timetableByTeacher/${schoolId}`;
         params.append("teachers", teacherId);
     } else if (roomId) {
-        url.pathname += `timetableByRoom/${schoolId}`;
+        url += `timetableByRoom/${schoolId}`;
         params.append("room", roomId);
     } else {
         throw new Error("Invalid parameters");
@@ -27,10 +26,10 @@ export default async function getScheduleEvents(
 
     params.append("from", fromDate);
     params.append("thru", toDate);
-    url.search = params.toString();
+    url += `?${params.toString()}`;
 
     try {
-        const response = await axios.get(url.toString());
+        const response = await axios.get(url);
         const events: scheduleEvent[] = response.data.timetableEvents;
         return events;
     } catch (error) {

@@ -5,7 +5,7 @@ import { schoolId } from "../../global";
 export default async function getCurrentStudyYear(): Promise<studyYear | null> {
     const url = `https://tahvel.edu.ee/hois_back/timetables/timetableStudyYears/${schoolId}`;
     const response = await axios.get(url);
-    const studyYears: studyYear[] = response.data.content;
+    const studyYears: studyYear[] = response.data;
     const currentYear = studyYears.find(isWithinStudyYear);
     return currentYear || null;
 }

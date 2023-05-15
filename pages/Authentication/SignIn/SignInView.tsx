@@ -5,11 +5,29 @@ import { SafeAreaView } from "react-native";
 import { auth } from "../../../Services/firebase/firebaseinit";
 import { getAuthError } from "../../../Services/ErrorHandlers/FirebaseErrors/authErrorHandler";
 import { useNavigation } from "@react-navigation/native";
+import getCurrentStudyYear from "../../../Services/tahvelApi/getCurrentStudyYear";
+import getGroups from "../../../Services/tahvelApi/getGroups";
+import getRooms from "../../../Services/tahvelApi/getRooms";
+import getTeachers from "../../../Services/tahvelApi/getTeachers";
+import getScheduleEvents from "../../../Services/tahvelApi/getScheduleEvents";
 
 export function SignInView({navigation}: any) {
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [signIn, _, loading, error] = useSignInWithEmailAndPassword(auth);
+    (async () => {
+        //console.log(await getCurrentStudyYear())
+        //console.log(await getGroups("SPT"))
+        //console.log(await getGroups())
+        //console.log(await getRooms("Si"))
+        //console.log(await getRooms())
+        //console.log(await getTeachers("Lo"))
+        //console.log(await getTeachers())
+        //console.log(await getScheduleEvents("2023-05-15T00:00:00Z", "2023-05-21T00:00:00Z", "1606"))
+        //console.log(await getScheduleEvents("2023-05-15T00:00:00Z", "2023-05-21T00:00:00Z", null, "4469"))
+        //console.log(await getScheduleEvents("2023-05-15T00:00:00Z", "2023-05-21T00:00:00Z", null, null, "1842"))
+        //console.log(await getScheduleEvents("2023-05-15T00:00:00Z", "2023-05-21T00:00:00Z"))
+    })()
 	return (
 		<SafeAreaView>
 			<Box padding={"15px"}>
