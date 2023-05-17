@@ -28,7 +28,7 @@ export default function SignUpView({ navigation }: any) {
 		}
 	}, [signUpData]);
 	return (
-		<SafeAreaView>
+		<SafeAreaView style={{ flex: 1, justifyContent: "center" }}>
 			<Box padding={"15px"}>
 				<Heading size={"3xl"}>Добро пожаловать</Heading>
 			</Box>
