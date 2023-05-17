@@ -5,8 +5,8 @@ import Svg, { Path } from 'react-native-svg';
 interface ShapeProps {
   color: string;
   svgPath: string;
-  width: number;
-  height: number;
+  width: number | string;
+  height: number | string;
   top?: number;
   bottom?: number;
   right?: number;
