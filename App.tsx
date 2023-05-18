@@ -6,21 +6,22 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./Services/firebase/firebaseinit";
 import { AuthenticationNavigator } from "./components/Navigators/AuthenticationNavigator";
 import { AppMainFlowTabNavigator } from "./components/Navigators/AppMainFlowTabNavigator";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
+const queryClient = new QueryClient();
 
 export default function App() {
 	const [user, loading, error] = useAuthState(auth);
 	return (
-		<NativeBaseProvider>
-			<NavigationContainer>
-				{user ? (
-                    <AppMainFlowTabNavigator />
-				) : (
-					<AuthenticationNavigator/>
-				)}
-			</NavigationContainer>
-            <StatusBar style='auto' />
-		</NativeBaseProvider>
+		<QueryClientProvider client={queryClient}>
+			<NativeBaseProvider>
+				<NavigationContainer>
+					{user ? <AppMainFlowTabNavigator /> : <AuthenticationNavigator />}
+				</NavigationContainer>
+				<StatusBar style='auto' />
+			</NativeBaseProvider>
+		</QueryClientProvider>
 	);
 }
 
