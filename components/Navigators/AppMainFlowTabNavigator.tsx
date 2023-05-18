@@ -29,6 +29,7 @@ export function AppMainFlowTabNavigator() {
 					name='Profile'
 					component={ProfilePageView}
 					options={{
+                        headerShown: false,
 						title: "Профиль",
 						tabBarIcon: ({ focused, color, size }) => <Ionicons name='person' size={size} color={color} />,
 					}}
