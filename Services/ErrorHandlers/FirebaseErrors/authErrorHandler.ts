@@ -8,7 +8,7 @@ export function getAuthError(error: AuthError): string {
             return "Внутренняя ошибка, пожалуйста, попробуйте снова"
         case 'auth/invalid-email': 
             return "Неправильный формат электронной почты"
-        case 'auth/invalid-password': 
+        case 'auth/wrong-password': 
             return 'Неверный пароль'
         case 'auth/user-not-found': 
             return 'Пользователь не найден'
