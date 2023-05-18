@@ -11,7 +11,7 @@ import {
     Text,
     VStack,
 } from "native-base";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { SafeAreaView } from "react-native";
 import { auth } from "../../../Services/firebase/firebaseinit";
@@ -23,6 +23,8 @@ import getRooms from "../../../Services/tahvelApi/getRooms";
 import getTeachers from "../../../Services/tahvelApi/getTeachers";
 import getScheduleEvents from "../../../Services/tahvelApi/getScheduleEvents";
 import Shape from "../../../components/Visual/Shape";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { EmailAuthProvider, GoogleAuthProvider, signInWithCredential, signInWithCustomToken } from "firebase/auth";
 
 export function SignInView({ navigation }: any) {
     const [email, setEmail] = useState<string>("");
@@ -41,6 +43,15 @@ export function SignInView({ navigation }: any) {
         //console.log(await getScheduleEvents("2023-05-15T00:00:00Z", "2023-05-21T00:00:00Z", null, null, "1842"))
         //console.log(await getScheduleEvents("2023-05-15T00:00:00Z", "2023-05-21T00:00:00Z"))
     })();
+    useEffect(() => {
+        AsyncStorage.getItem("user").then((user) => {
+            if (user) {
+                const u = JSON.parse(user)
+                signIn(u.email, u.password)
+            
+            }
+        });
+    }, []);
     return (
         <SafeAreaView style={{ flex: 1, justifyContent: "center" }}>
             <Shape
@@ -110,7 +121,20 @@ export function SignInView({ navigation }: any) {
                         size={"lg"}
                         isLoading={loading}
                         onPress={() => {
-                            signIn(email, password);
+                            signIn(email, password).then((userCredential) => {
+                                if (userCredential) {
+                                    AsyncStorage.setItem(
+                                        "user",
+                                        JSON.stringify({email, password})
+                                    ).catch((error: any) => {
+                                        console.log(error);
+                                    });
+                                } else {
+                                    console.log(
+                                        "User Credentials are undefined"
+                                    );
+                                }
+                            });
                         }}
                     >
                         Войти
