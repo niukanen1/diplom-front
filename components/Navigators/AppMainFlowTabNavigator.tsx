@@ -3,9 +3,12 @@ import HomePageView from "../../pages/tabPages/HomePage/HomePageView";
 import { ProfilePageView } from "../../pages/tabPages/ProfilePage/ProfilePageView";
 import { Ionicons } from "@expo/vector-icons";
 import { DashboardPage } from "../../pages/tabPages/DashboardPage/DashboardPage";
+import AppStore from "../../Stores/AppStore";
+import { observer } from "mobx-react-lite";
+import CouncilAdminPage from "../../pages/tabPages/CouncilAdminPage/CouncilAdminPage";
 
 const Tab = createBottomTabNavigator();
-export function AppMainFlowTabNavigator() {
+function AppMainFlowTabNavigator() {
 	return (
 		<>
 			<Tab.Navigator screenOptions={{ tabBarActiveTintColor: 'orange' }}>
@@ -17,6 +20,14 @@ export function AppMainFlowTabNavigator() {
 						tabBarIcon: ({ focused, color, size }) => <Ionicons name='home' size={size} color={color} />,
 					}}
 				/>
+                {AppStore.adminData ? <Tab.Screen 
+                    name="CouncilAdmin"
+                    component={CouncilAdminPage}
+                    options={{
+                        title: "Администраивная панель совета", 
+                        tabBarIcon: ({focused, color, size}) => <Ionicons name="journal" size={size} color={color}/>
+                    }}
+                /> : <></>}
                 <Tab.Screen
 					name='Dashboard'
 					component={DashboardPage}
@@ -39,3 +50,4 @@ export function AppMainFlowTabNavigator() {
 		</>
 	);
 }
+export default observer(AppMainFlowTabNavigator)

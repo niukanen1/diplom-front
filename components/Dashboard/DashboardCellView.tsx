@@ -5,7 +5,6 @@ import { Dimensions } from "react-native";
 export function DashboardCellView({ title, icon, page }: { title: string; icon: ReactNode; page: ReactNode }) {
 	const [showModal, setShowModal] = useState(false);
 	const screenHeight = Dimensions.get("window").height;
-	const Icon = () => icon;
 	return (
 		<>
 			<Pressable onPress={() => setShowModal(true)}>

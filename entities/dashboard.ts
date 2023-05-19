@@ -5,5 +5,4 @@ export type dashboardCell = {
     title: string 
     icon: ReactNode,
     page: ReactNode
-
 }

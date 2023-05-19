@@ -48,7 +48,6 @@ export function SignInView({ navigation }: any) {
             if (user) {
                 const u = JSON.parse(user)
                 signIn(u.email, u.password)
-            
             }
         });
     }, []);

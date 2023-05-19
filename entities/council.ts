@@ -1,9 +1,22 @@
+export enum status { 
+    notActivated = "notActivated", 
+    activated = "activated"
+}
 export type council = { 
     id: string; 
     adminUid: string; 
     title: string; 
+    votings: voting[]
 }
-
+export type councilMember = { 
+    userUid: string, 
+    status: status,
+    councilId: string,
+}
+export type adminData = { 
+    uid: string,
+    councilId: string
+}
 
 export type voting = { 
     id: string;

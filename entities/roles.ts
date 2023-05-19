@@ -1,7 +1,4 @@
-export type admin = { 
-    id: string; 
-    // schoolHouse: schoolHouse, 
-}
+
 
 export enum Role { 
     admin = "Admin",

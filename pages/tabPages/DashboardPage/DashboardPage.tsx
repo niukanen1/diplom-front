@@ -15,6 +15,7 @@ export function DashboardPage() {
 					data={data}
 					padding={"10px"}
 					numColumns={2}
+                    columnWrapperStyle={{justifyContent: 'space-between'}}
 					renderItem={(item) => {
 						return (
 							<Pressable>

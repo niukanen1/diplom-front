@@ -8,8 +8,10 @@ import { auth } from "../../../Services/firebase/firebaseinit";
 import {
 	UpdateUserData,
 	checkIfUserAdmin,
+    deleteUserData,
 } from "../../../Services/firebase/queries/UserInfoQueries";
 import { Role } from "../../../entities/roles";
+import { deleteUser } from "firebase/auth";
 
 export default function SignUpView({ navigation }: any) {
 	const [signUpData, setSignUpData] = useState<SignUpDataType>({
@@ -97,12 +99,18 @@ export default function SignUpView({ navigation }: any) {
 							signUp(signUpData.email, signUpData.password).then(async (userCred) => {
 								if (userCred?.user) {
 									const isAdmin = await checkIfUserAdmin(userCred.user.uid);
-									UpdateUserData(userCred.user.uid, {
-										uid: userCred.user.uid,
-										role: isAdmin ? Role.admin : Role.student,
-										group: "",
-										councilId: "",
-									});
+                                    try { 
+                                        await UpdateUserData(userCred.user.uid, {
+                                            uid: userCred.user.uid,
+                                            role: isAdmin ? Role.admin : Role.student,
+                                            group: "",
+                                            councilId: "",
+                                        });
+                                    } catch (err) { 
+                                        await deleteUser(userCred.user)
+                                        await deleteUserData(userCred.user.uid)
+                                    }
+									
 								}
 							});
 						}}>
