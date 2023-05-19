@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export enum status { 
     notActivated = "notActivated", 
     activated = "activated"
@@ -7,6 +9,14 @@ export type council = {
     adminUid: string; 
     title: string; 
     votings: voting[]
+    messages: message[];
+}
+
+export type message = { 
+    id: string, 
+    title: string, 
+    description: string, 
+    date: Timestamp
 }
 export type councilMember = { 
     userUid: string, 

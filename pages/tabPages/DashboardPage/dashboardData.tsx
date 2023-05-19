@@ -2,6 +2,7 @@ import { SchedulePage, reqType } from './dashBoardPages/SchedulePage';
 import { dashboardCell } from "../../../entities/dashboard";
 import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import CouncilMembersPage from "./dashBoardPages/CouncilMembersPage";
+import CouncilMessagesPage from './dashBoardPages/CouncilMessagesPage';
 
 
 export const data: dashboardCell[] = [
@@ -28,5 +29,11 @@ export const data: dashboardCell[] = [
         title: "Учас совета", 
         page: <CouncilMembersPage />, 
         icon: <Ionicons name="people" size={60} color={'white'}/>
+    }, 
+    { 
+        id: Date.now().toString(), 
+        title: "Сообщения", 
+        page: <CouncilMessagesPage />,
+        icon: <Ionicons name={'notifications'} size={60} color="white"/>
     }
 ]; 

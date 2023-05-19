@@ -1,6 +1,6 @@
 import { doc } from "firebase/firestore";
 import { observer } from "mobx-react-lite";
-import { Box, Button, Center, Heading, Modal, Spinner, Text, ScrollView } from "native-base";
+import { Box, Button, Center, Heading, Modal, Spinner, Text, ScrollView, VStack, HStack } from "native-base";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { auth, db } from "../../../Services/firebase/firebaseinit";
 import AppStore from "../../../Stores/AppStore";
@@ -11,6 +11,7 @@ import CouncilAdminCreateCouncilModal from "../../../components/CouncilAdmin/Cou
 import AdminMemberList from "../../../components/CouncilAdmin/MemberList/AdminMemberList";
 import { DashboardCellView } from "../../../components/Dashboard/DashboardCellView";
 import { Ionicons } from "@expo/vector-icons";
+import CouncilAdminNotificationModal from "../../../components/CouncilAdmin/CouncilAdminNotificationModal";
 
 function CouncilAdminPage() {
 	const [councilData, setCouncilData] = useState<council>();
@@ -47,15 +48,20 @@ function CouncilAdminPage() {
 					</Center>
 				) : (
 					<>
-						<ScrollView padding={'5px'} width={'100%'} height={"100%"}>
-							<Box width={"150px"}>
+						<VStack padding={"5px"} width={"100%"} height={"100%"}>
+							<HStack justifyContent={'space-between'}>
 								<DashboardCellView
 									title={"Участники"}
 									icon={<Ionicons name={"people"} size={50} color={"white"} />}
-									page={<AdminMemberList/>}
+									page={<AdminMemberList />}
 								/>
-							</Box>
-						</ScrollView>
+								<DashboardCellView
+									title={"Объявления"}
+									icon={<Ionicons name={"notifications"} size={50} color={"white"} />}
+									page={<CouncilAdminNotificationModal />}
+								/>
+							</HStack>
+						</VStack>
 					</>
 				)}
 			</Box>
@@ -67,14 +73,6 @@ function CouncilAdminPage() {
 					</Box>
 				</Modal.Content>
 			</Modal>
-			{/* <Modal>
-				<Modal.Content height={screenHeight}>
-                <Modal.CloseButton />
-					<Box marginTop={"50px"}>
-						<AdminMemberList />
-					</Box>
-                </Modal.Content>
-			</Modal> */}
 		</>
 	);
 }
