@@ -1,6 +1,9 @@
 export interface room {
-    buildingId: number;
+    buildingId?: number;
     id: number;
-    nameEt: string;
+    nameEt?: string;
     seats?: number;
+    buildingCode?: string;
+    roomCode?: string;
 }
+

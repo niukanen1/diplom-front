@@ -1,7 +1,8 @@
 export interface teacher {
     id: number;
-    fullName: string;
-    firstname: string;
-    lastname: string;
+    fullName?: string;
+    firstname?: string;
+    lastname?: string;
+    name? : string;
   }
   

@@ -17,11 +17,7 @@ export function DashboardPage() {
 					numColumns={2}
 					renderItem={(item) => {
 						return (
-							<Pressable
-								onPress={() => {
-									// setShowModal(true);
-									// setModalContent(item.item.page)
-								}}>
+							<Pressable>
 								<DashboardCellView
 									title={item.item.title}
 									icon={item.item.icon}
