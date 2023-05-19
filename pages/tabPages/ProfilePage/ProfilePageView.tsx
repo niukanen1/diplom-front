@@ -10,6 +10,7 @@ import {
 } from "native-base";
 import { useSignOut } from "react-firebase-hooks/auth";
 import { auth } from "../../../Services/firebase/firebaseinit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function ProfilePageView() {
     const [signOut, loading, error] = useSignOut(auth);
@@ -42,7 +43,7 @@ export function ProfilePageView() {
                 marginBottom={"10px"}
                 backgroundColor={"red.500"}
                 onPress={() => {
-                    signOut();
+                    AsyncStorage.removeItem("user").then(() => signOut());
                 }}
                 isLoading={loading}
             >

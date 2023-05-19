@@ -25,88 +25,121 @@ import {
     sortEventsByDate,
 } from "../../../../Services/Helpers/sortEventsBydate";
 import { getDayOfWeek } from "../../../../Services/Helpers/getDayOfWeek";
+import getTeachers from "../../../../Services/tahvelApi/getTeachers";
+import getRooms from "../../../../Services/tahvelApi/getRooms";
+import { room } from "../../../../entities/room";
+import { teacher } from "../../../../entities/teacher";
 
-export function SchedulePage() {
+export enum reqType {
+    group = "group",
+    teacher = "teacher",
+    room = "room",
+}
+
+export function SchedulePage({ type }: { type: reqType }) {
     const [schedule, setSchedule] = useState<SortedEvents>({});
-    const [groupId, setGroupId] = useState<string>();
+    const [Id, setId] = useState<string>();
+    const [selectedDay, setSelectedDay] = useState<string>(
+        getDayOfWeek(new Date().toLocaleDateString())
+    );
     const { isLoading, isError, data, error, refetch } = useQuery({
         queryKey: ["schedule", "lesson", "list"],
         queryFn: () => {
-            if (groupId) {
-                return getScheduleEvents(
-                    getFirstDayOfWeek(new Date()).toISOString(),
-                    getLastDayOfWeek(new Date()).toISOString(),
-                    groupId
-                );
+            if (Id) {
+                switch (type) {
+                    case reqType.group:
+                        return getScheduleEvents(
+                            getFirstDayOfWeek(new Date()).toISOString(),
+                            getLastDayOfWeek(new Date()).toISOString(),
+                            Id
+                        );
+                    case reqType.teacher:
+                        return getScheduleEvents(
+                            getFirstDayOfWeek(new Date()).toISOString(),
+                            getLastDayOfWeek(new Date()).toISOString(),
+                            null,
+                            Id
+                        );
+                        break;
+                    case reqType.room:
+                        return getScheduleEvents(
+                            getFirstDayOfWeek(new Date()).toISOString(),
+                            getLastDayOfWeek(new Date()).toISOString(),
+                            null,
+                            null,
+                            Id
+                        );
+                        break;
+                }
             }
             return Promise.resolve([]);
         },
-        enabled: Boolean(groupId),
+        enabled: Boolean(Id),
     });
 
     useEffect(() => {
         refetch();
-    }, [groupId]);
+    }, [Id]);
 
     useEffect(() => {
         setSchedule(sortEventsByDate(data));
         console.log(schedule);
     }, [data]);
     return (
-        <VStack >
+        <VStack>
             <Heading>Расписание</Heading>
-            <GroupListSelection setGroupId={setGroupId} />
+            <GroupListSelection setId={setId} type={type} />
             <ScrollView horizontal={false} flex={1}>
                 {schedule ? (
-                    Object.keys(schedule)
-                        .sort((a, b) => {
-                            return (
+                    <FlatList
+                        horizontal
+                        data={Object.keys(schedule).sort(
+                            (a, b) =>
                                 new Date(a).getTime() - new Date(b).getTime()
-                            );
-                        })
-                        .map((key) => {
-                            console.log(schedule);
-                            return (
-                                <Box key={key}>
-                                    <Heading>{getDayOfWeek(key)}</Heading>
-                                    {schedule[key].map((event) => (
-                                        <Box
-                                            key={event.id}
-                                            bg="rgba(29, 134, 80, 0.26)"
-                                            borderRadius={6}
-                                            marginBottom={"10px"}
-                                            padding={"10px"}
-                                        >
-                                            <Text>
-                                                {event.rooms
-                                                    .map((room) =>
-                                                        room.roomCode
-                                                            ? `${room.buildingCode} ${room.roomCode}`
-                                                            : event.addInfo
-                                                    )
-                                                    .join("")}
-                                            </Text>
+                        )}
+                        keyExtractor={(item) => item}
+                        renderItem={({ item }) => (
+                            <Box width={250} marginLeft={"2"} marginRight={"2"}>
+                                <Heading>{getDayOfWeek(item)}</Heading>
+                                {schedule[item].map((event) => (
+                                    <Box
+                                        key={`${type}-${event.id}`}
+                                        bg="rgba(29, 134, 80, 0.26)"
+                                        borderRadius={6}
+                                        marginBottom={"10px"}
+                                        padding={"10px"}
+                                    >
+                                        <Text numberOfLines={1}>
+                                            {event.rooms
+                                                .map((room) =>
+                                                    room.roomCode
+                                                        ? `${room.buildingCode} ${room.roomCode}`
+                                                        : event.addInfo
+                                                )
+                                                .join("")}
+                                        </Text>
 
-                                            <Text>{event.nameEt}</Text>
-                                            
-                                            <Text>
-                                                {event.teachers
-                                                    .map((teacher) =>
-                                                        teacher.name
-                                                            ? teacher.name
-                                                            : "-"
-                                                    )
-                                                    .join("")}
-                                            </Text>
-                                            <Text>
-                                                {event.timeStart} -{" "}
-                                                {event.timeEnd}
-                                            </Text>
-                                        </Box>
-                                    ))}
-                                </Box>
-                            );
-                        })
+                                        <Text numberOfLines={1}>
+                                            {event.nameEt}
+                                        </Text>
+
+                                        <Text numberOfLines={1}>
+                                            {event.teachers
+                                                .map((teacher) =>
+                                                    teacher.name
+                                                        ? teacher.name
+                                                        : "-"
+                                                )
+                                                .join("")}
+                                        </Text>
+                                        <Text numberOfLines={1}>
+                                            {event.timeStart} - {event.timeEnd}
+                                        </Text>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
+                    />
                 ) : (
                     <Text>Loading</Text>
                 )}
@@ -114,37 +147,61 @@ export function SchedulePage() {
         </VStack>
     );
 }
+
 function GroupListSelection({
-    setGroupId,
+    setId,
+    type,
 }: {
-    setGroupId: React.Dispatch<React.SetStateAction<string | undefined>>;
+    setId: React.Dispatch<React.SetStateAction<string | undefined>>;
+    type: reqType;
 }) {
-    const [groupName, setGroupName] = useState("");
-    const [suggestions, setSuggestions] = useState<group[]>([]);
+    const [Name, setName] = useState("");
+    const [suggestions, setSuggestions] = useState<group[] | teacher[] | room[]>([]);
     const [enableSuggestions, setEnableSuggestions] = useState(true); // Флаг для включения/отключения предложений
     const { isLoading, isError, data, error, refetch } = useQuery({
-        queryKey: ["group", "list"],
+        queryKey: [type, "list"],
         queryFn: async () => {
-            return await getGroups();
+            switch (type) {
+                case reqType.group:
+                    return await getGroups();
+                    break;
+                case reqType.teacher:
+                    return await getTeachers();
+                    break;
+                case reqType.room:
+                    return await getRooms();
+                    break;
+            }
         },
     });
 
     const handleInputChange = (text: string) => {
-        setGroupName(text);
+        setName(text);
         refetch();
         if (data) {
-            const filteredSuggestions = data.filter((item) =>
-                item.nameEt.toLowerCase().includes(text.toLowerCase())
-            );
+            const filteredSuggestions = (data as (group | teacher | room)[]).filter((item: group | teacher | room) => {
+                if ("nameEt" in item) {
+                    // Type guard for group
+                    return item.nameEt?.toLowerCase().includes(text.toLowerCase());
+                } else if ("name" in item) {
+                    // Type guard for teacher
+                    return item.name?.toLowerCase().includes(text.toLowerCase());
+                }
+                return false;
+            });
             const limitedSuggestions = filteredSuggestions.slice(0, 5);
             setSuggestions(limitedSuggestions);
         }
     };
 
-    const handleSuggestionClick = (suggestion: group) => {
-        setGroupName(suggestion.nameEt);
+    const handleSuggestionClick = (suggestion: group | teacher | room) => {
+        if ("nameEt" in suggestion) {
+            setName(suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString());
+        } else if ("name" in suggestion) {
+            setName(suggestion.name ? suggestion.name : suggestion.id.toString());
+        }
         setEnableSuggestions(false); // Отключаем предложения после выбора
-        setGroupId(suggestion.id.toString());
+        setId(suggestion.id.toString());
     };
 
     const handleInputFocus = () => {
@@ -155,7 +212,7 @@ function GroupListSelection({
         <Box>
             <Input
                 focusOutlineColor={"green.500"}
-                value={groupName}
+                value={Name}
                 onChangeText={handleInputChange}
                 onFocus={handleInputFocus}
             />
@@ -168,7 +225,7 @@ function GroupListSelection({
                             onPress={() => handleSuggestionClick(item)}
                         >
                             <Box>
-                                <Text>{item.nameEt}</Text>
+                                <Text>{"nameEt" in item ? item.nameEt : ("name" in item ? item.name : item.id.toString())}</Text>
                             </Box>
                         </TouchableOpacity>
                     ))}
