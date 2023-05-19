@@ -29,7 +29,7 @@ function CouncilAdminNotificationModal() {
 				<ScrollView>
 					{messages?.map((message) => {
 						return (
-							<SingleMessageView message={message} /> 
+							<SingleMessageView key={message.id} message={message} /> 
 						);
 					})}
 				</ScrollView>
