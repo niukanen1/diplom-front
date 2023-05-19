@@ -5,6 +5,8 @@ import { db } from "../../../Services/firebase/firebaseinit";
 import AppStore from "../../../Stores/AppStore";
 import { Box, ScrollView, Text } from "native-base";
 import { councilMember } from "../../../entities/council";
+import { getUserData } from "../../../Services/firebase/queries/UserInfoQueries";
+import { SingleUserAdminItem } from "./SingleUserAdminItem";
 
 function AdminMemeberList() {
 	const [value, loading, error] = useCollection(
@@ -16,9 +18,11 @@ function AdminMemeberList() {
 				{value?.docs.map((doc) => {
 					const councilMember = doc.data() as councilMember;
 					return (
-						<Box key={councilMember.userUid}>
-							<Text>{councilMember.userUid}</Text>
-						</Box>
+						<SingleUserAdminItem
+							councilMemberData={councilMember}
+							userUid={councilMember.userUid}
+							key={councilMember.userUid}
+						/>
 					);
 				})}
 			</ScrollView>

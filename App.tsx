@@ -22,10 +22,10 @@ function App() {
     useEffect(() => { 
         if (value?.data()) { 
             AppStore.setAdminData(value.data() as adminData)
-            console.log(value.data());
+            // console.log(value.data());
         } else { 
             AppStore.deleteAdminData();
-            console.log("deleting");
+            // console.log("deleting");
         }
     }, [value])
 	return (
