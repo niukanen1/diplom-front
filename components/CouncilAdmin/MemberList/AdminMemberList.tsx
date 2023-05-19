@@ -13,13 +13,15 @@ function AdminMemeberList() {
 	return (
 		<Box>
 			<ScrollView>
-                {value?.docs.map(doc => { 
-                    const councilMember = doc.data() as councilMember;
-                    return (
-                        <Text>{councilMember.userUid}</Text>
-                    )
-                })}
-            </ScrollView>
+				{value?.docs.map((doc) => {
+					const councilMember = doc.data() as councilMember;
+					return (
+						<Box key={councilMember.userUid}>
+							<Text>{councilMember.userUid}</Text>
+						</Box>
+					);
+				})}
+			</ScrollView>
 		</Box>
 	);
 }

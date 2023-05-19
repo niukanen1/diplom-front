@@ -17,6 +17,11 @@ export async function createCouncil(councilName: string, adminUid: string | unde
             uid: auth.currentUser?.uid ?? "",
             councilId: councilId
         })
+
+        await setDoc(doc(db, "admins", adminUid), {
+            uid: auth.currentUser?.uid ?? "",
+            councilId: councilId
+        })
     
         return await setDoc(doc(db, "councils", adminUid), councilData);
     }
