@@ -1,5 +1,5 @@
-import { doc, setDoc } from "firebase/firestore";
-import { council } from "../../../entities/council";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { council, councilMember } from "../../../entities/council";
 import { auth, db } from "../firebaseinit";
 import AppStore from "../../../Stores/AppStore";
 
@@ -27,3 +27,7 @@ export async function createCouncil(councilName: string, adminUid: string | unde
     }
    throw Error("Неопознан uid пользователя")
 }
+
+export async function UpdateCouncilMemberData(updatedCouncilMemberData: councilMember) { 
+    return await updateDoc(doc(db, "councilUsers", updatedCouncilMemberData.userUid), updatedCouncilMemberData)
+} 

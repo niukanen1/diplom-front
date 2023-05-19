@@ -25,7 +25,6 @@ export async function checkIfUserAdmin(userId: string) {
         return false 
     }
 }
-
 export async function requestBecomeCouncilMemeber(userUid: string | undefined, councilId: string) { 
     if (!userUid) { 
         throw Error("Не удалось распознать идентификатор пользователя")
