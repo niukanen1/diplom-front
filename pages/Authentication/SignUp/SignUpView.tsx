@@ -5,16 +5,13 @@ import { SafeAreaView } from "react-native";
 import { getAuthError } from "../../../Services/ErrorHandlers/FirebaseErrors/authErrorHandler";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "../../../Services/firebase/firebaseinit";
-import {
-	UpdateUserData,
-	checkIfUserAdmin,
-    deleteUserData,
-} from "../../../Services/firebase/queries/UserInfoQueries";
+import { UpdateUserData, checkIfUserAdmin, deleteUserData } from "../../../Services/firebase/queries/UserInfoQueries";
 import { Role } from "../../../entities/roles";
 import { deleteUser } from "firebase/auth";
 
 export default function SignUpView({ navigation }: any) {
 	const [signUpData, setSignUpData] = useState<SignUpDataType>({
+		name: "",
 		email: "",
 		password: "",
 		passwordConfirmation: "",
@@ -53,6 +50,18 @@ export default function SignUpView({ navigation }: any) {
 						<></>
 					)}
 					<VStack>
+						<FormControl isRequired>
+							<FormControl.Label>Имя</FormControl.Label>
+							<Input
+								size={"2xl"}
+								keyboardType='default'
+								type='text'
+								placeholder='Ваше полное имя'
+								onChangeText={(newName) => {
+									setSignUpData({ ...signUpData, name: newName });
+								}}
+							/>
+						</FormControl>
 						<FormControl isRequired>
 							<FormControl.Label>Email</FormControl.Label>
 							<Input
@@ -98,19 +107,20 @@ export default function SignUpView({ navigation }: any) {
 						onPress={() => {
 							signUp(signUpData.email, signUpData.password).then(async (userCred) => {
 								if (userCred?.user) {
-									const isAdmin = await checkIfUserAdmin(userCred.user.uid);
-                                    try { 
-                                        await UpdateUserData(userCred.user.uid, {
-                                            uid: userCred.user.uid,
-                                            role: isAdmin ? Role.admin : Role.student,
-                                            group: "",
-                                            councilId: "",
-                                        });
-                                    } catch (err) { 
-                                        await deleteUser(userCred.user)
-                                        await deleteUserData(userCred.user.uid)
-                                    }
-									
+									// const isAdmin = await checkIfUserAdmin(userCred.user.uid);
+									try {
+										await UpdateUserData(userCred.user.uid, {
+											name: signUpData.name,
+											email: signUpData.email,
+											uid: userCred.user.uid,
+											role: Role.student,
+											group: "",
+											councilId: "",
+										});
+									} catch (err) {
+										await deleteUser(userCred.user);
+										await deleteUserData(userCred.user.uid);
+									}
 								}
 							});
 						}}>

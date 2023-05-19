@@ -7,11 +7,24 @@ import {
     VStack,
     Text,
     Avatar,
+    ScrollView,
 } from "native-base";
 import { useSignOut } from "react-firebase-hooks/auth";
 import { auth } from "../../../Services/firebase/firebaseinit";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-export function ProfilePageView() {
+const StackNavigator = createNativeStackNavigator();
+
+export function ProfileNavigator() { 
+    return ( 
+        <StackNavigator.Navigator>
+            <StackNavigator.Screen name={"profile"} component={ProfilePageView} options={{headerShown: false}} /> 
+            <StackNavigator.Screen name={"groupSettings"} component={() => ( <Box>Hello</Box>)} /> 
+        </StackNavigator.Navigator>
+    )
+}
+
+export function ProfilePageView({navigation} : {navigation: any}) {
     const [signOut, loading, error] = useSignOut(auth);
     return (
         <Flex justifyContent={"space-between"} h={"100%"}>
@@ -38,6 +51,9 @@ export function ProfilePageView() {
                     </Text>
                 </Box>
             </Flex>
+
+            <Button onPress={() => navigation.navigate("groupSettings")}>Settings</Button>
+            
             <Button
                 marginBottom={"10px"}
                 backgroundColor={"red.500"}

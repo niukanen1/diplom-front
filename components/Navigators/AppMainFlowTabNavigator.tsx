@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomePageView from "../../pages/tabPages/HomePage/HomePageView";
-import { ProfilePageView } from "../../pages/tabPages/ProfilePage/ProfilePageView";
+import { ProfileNavigator, ProfilePageView } from "../../pages/tabPages/ProfilePage/ProfilePageView";
 import { Ionicons } from "@expo/vector-icons";
 import { DashboardPage } from "../../pages/tabPages/DashboardPage/DashboardPage";
 import AppStore from "../../Stores/AppStore";
@@ -38,7 +38,7 @@ function AppMainFlowTabNavigator() {
 				/>
 				<Tab.Screen
 					name='Profile'
-					component={ProfilePageView}
+					component={ProfileNavigator}
 					options={{
                         headerShown: false,
 						title: "Профиль",
