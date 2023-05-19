@@ -29,6 +29,7 @@ import getTeachers from "../../../../Services/tahvelApi/getTeachers";
 import getRooms from "../../../../Services/tahvelApi/getRooms";
 import { room } from "../../../../entities/room";
 import { teacher } from "../../../../entities/teacher";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export enum reqType {
     group = "group",
@@ -39,6 +40,7 @@ export enum reqType {
 export function SchedulePage({ type }: { type: reqType }) {
     const [schedule, setSchedule] = useState<SortedEvents>({});
     const [Id, setId] = useState<string>();
+    const [Name, setName] = useState<string>();
     const [selectedDay, setSelectedDay] = useState<string>(
         getDayOfWeek(new Date().toLocaleDateString())
     );
@@ -88,7 +90,7 @@ export function SchedulePage({ type }: { type: reqType }) {
     return (
         <VStack>
             <Heading>Расписание</Heading>
-            <GroupListSelection setId={setId} type={type} />
+            <GroupListSelection setId={setId} type={type} setNameMain={setName}/>
             <ScrollView horizontal={false} flex={1}>
                 {schedule ? (
                     <FlatList
@@ -148,11 +150,13 @@ export function SchedulePage({ type }: { type: reqType }) {
     );
 }
 
-function GroupListSelection({
+export function GroupListSelection({
     setId,
+    setNameMain,
     type,
 }: {
     setId: React.Dispatch<React.SetStateAction<string | undefined>>;
+    setNameMain:  React.Dispatch<React.SetStateAction<string | undefined>>;
     type: reqType;
 }) {
     const [Name, setName] = useState("");
@@ -174,6 +178,17 @@ function GroupListSelection({
             }
         },
     });
+
+    useEffect(() => {
+        AsyncStorage.getItem(type).then((item) => {
+            if (item) {
+                console.log(item)
+                const u = JSON.parse(item)
+                setName(u.name)
+                setId(u.id)
+            }
+        });
+    }, []);
 
     const handleInputChange = (text: string) => {
         setName(text);
@@ -197,8 +212,10 @@ function GroupListSelection({
     const handleSuggestionClick = (suggestion: group | teacher | room) => {
         if ("nameEt" in suggestion) {
             setName(suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString());
+            setNameMain(suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString());
         } else if ("name" in suggestion) {
             setName(suggestion.name ? suggestion.name : suggestion.id.toString());
+            setNameMain(suggestion.name ? suggestion.name : suggestion.id.toString());
         }
         setEnableSuggestions(false); // Отключаем предложения после выбора
         setId(suggestion.id.toString());
