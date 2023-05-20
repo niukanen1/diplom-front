@@ -15,7 +15,7 @@ export interface scheduleEvent {
     studentGroups: studentGroup[];
     subgroups: any[];
     students: any[];
-    addInfo: any | null;
+    addInfo: string | null;
     singleEvent: boolean;
     publicEvent: number;
     timetableId: number;

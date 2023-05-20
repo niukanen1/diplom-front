@@ -10,7 +10,6 @@ export function DashboardPage() {
 	const screenHeight = Dimensions.get("window").height;
 	return (
 		<>
-
 				<FlatList
 					data={data}
 					padding={"10px"}

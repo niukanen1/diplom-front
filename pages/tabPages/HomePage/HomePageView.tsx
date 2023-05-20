@@ -11,6 +11,7 @@ import {
     View,
     VStack,
     Heading,
+    Spinner,
 } from "native-base";
 import getGroups from "../../../Services/tahvelApi/getGroups";
 import getRooms from "../../../Services/tahvelApi/getRooms";
@@ -63,12 +64,12 @@ export default function HomePageView() {
                 marginLeft={10}
                 marginRight={10}
             >
-                <Text>Loading</Text>
+                <Spinner accessibilityLabel="Загрузка"  size="lg"/>
             </Flex>
         );
     } else if (token && data) {
         return (
-            <VStack backgroundColor={"#1D8650"} borderBottomLeftRadius={20}>
+            <VStack backgroundColor={"white"} borderBottomLeftRadius={20}>
                 <Shape
                     color="#095E02"
                     svgPath="M14.8301 0H337V282.482C299.656 301.955 262.307 295.541 252.613 275.146C203.181 171.146 155.113 112.646 75.6128 162.146C1.28025 208.428 -16.6646 77.6804 14.8301 0Z"
@@ -92,7 +93,7 @@ export default function HomePageView() {
 
                 <View width={"100%"} h={8} />
                 <ScrollView padding={5}>
-                    <VStack marginBottom={10} paddingLeft={5} paddingRight={5}>
+                    <VStack marginBottom={10} paddingLeft={5} paddingRight={5} backgroundColor={"#1D8650"} borderRightRadius={20}>
                         <Flex
                             direction="row"
                             justifyContent={"space-between"}

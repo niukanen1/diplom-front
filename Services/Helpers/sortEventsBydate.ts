@@ -10,6 +10,7 @@ export function sortEventsByDate(
     const sortedEvents: SortedEvents = {};
     if (data) {
         for (const event of data) {
+            
             if (!sortedEvents[event.date]) {
                 sortedEvents[event.date] = [];
             }

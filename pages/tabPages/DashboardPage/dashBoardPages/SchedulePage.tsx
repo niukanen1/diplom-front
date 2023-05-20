@@ -8,8 +8,10 @@ import {
     Accordion,
     ScrollView,
     Input,
+    Spinner,
+    Flex,
 } from "native-base";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { scheduleEvent } from "../../../../entities/scheduleEvent";
 import { useQuery } from "@tanstack/react-query";
 import getScheduleEvents from "../../../../Services/tahvelApi/getScheduleEvents";
@@ -19,7 +21,12 @@ import {
 } from "../../../../Services/Helpers/DateProcessing";
 import getGroups from "../../../../Services/tahvelApi/getGroups";
 import { group } from "../../../../entities/group";
-import { Keyboard, KeyboardAvoidingView, TouchableOpacity } from "react-native";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import {
     SortedEvents,
     sortEventsByDate,
@@ -30,6 +37,7 @@ import getRooms from "../../../../Services/tahvelApi/getRooms";
 import { room } from "../../../../entities/room";
 import { teacher } from "../../../../entities/teacher";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AntDesign } from "@expo/vector-icons";
 
 export enum reqType {
     group = "group",
@@ -41,6 +49,7 @@ export function SchedulePage({ type }: { type: reqType }) {
     const [schedule, setSchedule] = useState<SortedEvents>({});
     const [Id, setId] = useState<string>();
     const [Name, setName] = useState<string>();
+    const [currentWeekDay, setCurrentWeekDay] = useState(new Date());
     const [selectedDay, setSelectedDay] = useState<string>(
         getDayOfWeek(new Date().toLocaleDateString())
     );
@@ -51,26 +60,26 @@ export function SchedulePage({ type }: { type: reqType }) {
                 switch (type) {
                     case reqType.group:
                         return getScheduleEvents(
-                            getFirstDayOfWeek(new Date()).toISOString(),
-                            getLastDayOfWeek(new Date()).toISOString(),
+                            getFirstDayOfWeek(currentWeekDay).toISOString(),
+                            getLastDayOfWeek(currentWeekDay).toISOString(),
                             Id
                         );
                     case reqType.teacher:
                         return getScheduleEvents(
-                            getFirstDayOfWeek(new Date()).toISOString(),
-                            getLastDayOfWeek(new Date()).toISOString(),
+                            getFirstDayOfWeek(currentWeekDay).toISOString(),
+                            getLastDayOfWeek(currentWeekDay).toISOString(),
                             null,
                             Id
                         );
-                        break;
                     case reqType.room:
                         return getScheduleEvents(
-                            getFirstDayOfWeek(new Date()).toISOString(),
-                            getLastDayOfWeek(new Date()).toISOString(),
+                            getFirstDayOfWeek(currentWeekDay).toISOString(),
+                            getLastDayOfWeek(currentWeekDay).toISOString(),
                             null,
                             null,
                             Id
                         );
+                    default:
                         break;
                 }
             }
@@ -84,66 +93,156 @@ export function SchedulePage({ type }: { type: reqType }) {
     }, [Id]);
 
     useEffect(() => {
+        refetch();
+    }, [currentWeekDay]);
+
+    currentWeekDay;
+
+    useEffect(() => {
         setSchedule(sortEventsByDate(data));
-        console.log(schedule);
+        console.log(JSON.stringify(data));
     }, [data]);
+
+    const renderDayButton = (day: string) => {
+        const isActive = day === selectedDay;
+        const buttonText = getDayOfWeek(day).slice(0, 2).toUpperCase();
+        return (
+            <TouchableOpacity
+                key={day}
+                onPress={() => setSelectedDay(day)}
+                style={{
+                    paddingHorizontal: 5,
+                    backgroundColor: isActive ? "#F15A22" : "#58A57E",
+                    borderRadius: 25,
+                    marginHorizontal: 5,
+                    width: 30,
+                    height: 30,
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <Text fontSize={12} color={"white"}>
+                    {buttonText}
+                </Text>
+            </TouchableOpacity>
+        );
+    };
+
     return (
         <VStack>
             <Heading>Расписание</Heading>
-            <GroupListSelection setId={setId} type={type} setNameMain={setName}/>
+            <GroupListSelection
+                setId={setId}
+                type={type}
+                setNameMain={setName}
+            />
             <ScrollView horizontal={false} flex={1}>
-                {schedule ? (
-                    <FlatList
-                        horizontal
-                        data={Object.keys(schedule).sort(
+                <Flex
+                    direction="row"
+                    justifyContent={"space-around"}
+                    marginTop={3}
+                    marginBottom={1}
+                >
+                    <AntDesign
+                        name="leftcircleo"
+                        size={24}
+                        color="black"
+                        onPress={() =>
+                            setCurrentWeekDay(
+                                new Date(
+                                    currentWeekDay.setDate(
+                                        currentWeekDay.getDate() - 7
+                                    )
+                                )
+                            )
+                        }
+                    />
+                    {Object.keys(schedule)
+                        .sort(
                             (a, b) =>
                                 new Date(a).getTime() - new Date(b).getTime()
-                        )}
-                        keyExtractor={(item) => item}
-                        renderItem={({ item }) => (
-                            <Box width={250} marginLeft={"2"} marginRight={"2"}>
-                                <Heading>{getDayOfWeek(item)}</Heading>
-                                {schedule[item].map((event) => (
-                                    <Box
-                                        key={`${type}-${event.id}`}
-                                        bg="rgba(29, 134, 80, 0.26)"
-                                        borderRadius={6}
-                                        marginBottom={"10px"}
-                                        padding={"10px"}
-                                    >
-                                        <Text numberOfLines={1}>
-                                            {event.rooms
-                                                .map((room) =>
-                                                    room.roomCode
-                                                        ? `${room.buildingCode} ${room.roomCode}`
-                                                        : event.addInfo
-                                                )
-                                                .join("")}
-                                        </Text>
-
-                                        <Text numberOfLines={1}>
-                                            {event.nameEt}
-                                        </Text>
-
-                                        <Text numberOfLines={1}>
-                                            {event.teachers
-                                                .map((teacher) =>
-                                                    teacher.name
-                                                        ? teacher.name
-                                                        : "-"
-                                                )
-                                                .join("")}
-                                        </Text>
-                                        <Text numberOfLines={1}>
-                                            {event.timeStart} - {event.timeEnd}
-                                        </Text>
-                                    </Box>
-                                ))}
-                            </Box>
-                        )}
+                        )
+                        .map((item) => (
+                            <View key={item}>{renderDayButton(item)}</View>
+                        ))}
+                    <AntDesign
+                        name="rightcircleo"
+                        size={24}
+                        color="black"
+                        onPress={() =>
+                            setCurrentWeekDay(
+                                new Date(
+                                    currentWeekDay.setDate(
+                                        currentWeekDay.getDate() + 7
+                                    )
+                                )
+                            )
+                        }
                     />
+                </Flex>
+                {schedule[selectedDay] && schedule[selectedDay].length > 0 ? (
+                    <Flex>
+                        {schedule[selectedDay].map((item) => (
+                            <View
+                                key={`${type}-${item.id}`}
+                                style={{
+                                    backgroundColor: "#1D8650",
+                                    borderRadius: 6,
+                                    marginBottom: 5,
+                                    padding: 10,
+                                }}
+                            >
+                                <Flex
+                                    direction="row"
+                                    justifyContent={"space-between"}
+                                >
+                                    <Text numberOfLines={1} color={"white"}>
+                                        {item.rooms.length > 0
+                                            ? item.rooms
+                                                  .map((room) =>
+                                                      room.roomCode
+                                                          ? `${room.buildingCode} ${room.roomCode}`
+                                                          : item.addInfo
+                                                  )
+                                                  .join("")
+                                            : item.addInfo}
+                                    </Text>
+                                    <Text
+                                        numberOfLines={1}
+                                        color={"white"}
+                                    >
+                                        {new Date(item.date).toLocaleDateString()}
+                                    </Text>
+                                </Flex>
+                                <Text
+                                    numberOfLines={1}
+                                    color={"white"}
+                                    fontSize={20}
+                                >
+                                    {item.nameEt}
+                                </Text>
+                                <Flex
+                                    direction="row"
+                                    justifyContent={"space-between"}
+                                >
+                                    <Text numberOfLines={1} color={"white"}>
+                                        {item.timeStart} - {item.timeEnd}
+                                    </Text>
+                                    <Text numberOfLines={1} color={"white"}>
+                                        {item.teachers
+                                            .map((teacher) =>
+                                                teacher.name
+                                                    ? teacher.name
+                                                    : "-"
+                                            )
+                                            .join(" ")}
+                                    </Text>
+                                </Flex>
+                            </View>
+                        ))}
+                    </Flex>
                 ) : (
-                    <Text>Loading</Text>
+                    <Text>Сегодня ничего нет</Text>
                 )}
             </ScrollView>
         </VStack>
@@ -156,11 +255,13 @@ export function GroupListSelection({
     type,
 }: {
     setId: React.Dispatch<React.SetStateAction<string | undefined>>;
-    setNameMain:  React.Dispatch<React.SetStateAction<string | undefined>>;
+    setNameMain: React.Dispatch<React.SetStateAction<string | undefined>>;
     type: reqType;
 }) {
     const [Name, setName] = useState("");
-    const [suggestions, setSuggestions] = useState<group[] | teacher[] | room[]>([]);
+    const [suggestions, setSuggestions] = useState<
+        group[] | teacher[] | room[]
+    >([]);
     const [enableSuggestions, setEnableSuggestions] = useState(true); // Флаг для включения/отключения предложений
     const { isLoading, isError, data, error, refetch } = useQuery({
         queryKey: [type, "list"],
@@ -182,10 +283,9 @@ export function GroupListSelection({
     useEffect(() => {
         AsyncStorage.getItem(type).then((item) => {
             if (item) {
-                console.log(item)
-                const u = JSON.parse(item)
-                setName(u.name)
-                setId(u.id)
+                const u = JSON.parse(item);
+                setName(u.name);
+                setId(u.id);
             }
         });
     }, []);
@@ -194,13 +294,19 @@ export function GroupListSelection({
         setName(text);
         refetch();
         if (data) {
-            const filteredSuggestions = (data as (group | teacher | room)[]).filter((item: group | teacher | room) => {
+            const filteredSuggestions = (
+                data as (group | teacher | room)[]
+            ).filter((item: group | teacher | room) => {
                 if ("nameEt" in item) {
                     // Type guard for group
-                    return item.nameEt?.toLowerCase().includes(text.toLowerCase());
+                    return item.nameEt
+                        ?.toLowerCase()
+                        .includes(text.toLowerCase());
                 } else if ("name" in item) {
                     // Type guard for teacher
-                    return item.name?.toLowerCase().includes(text.toLowerCase());
+                    return item.name
+                        ?.toLowerCase()
+                        .includes(text.toLowerCase());
                 }
                 return false;
             });
@@ -211,11 +317,19 @@ export function GroupListSelection({
 
     const handleSuggestionClick = (suggestion: group | teacher | room) => {
         if ("nameEt" in suggestion) {
-            setName(suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString());
-            setNameMain(suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString());
+            setName(
+                suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString()
+            );
+            setNameMain(
+                suggestion.nameEt ? suggestion.nameEt : suggestion.id.toString()
+            );
         } else if ("name" in suggestion) {
-            setName(suggestion.name ? suggestion.name : suggestion.id.toString());
-            setNameMain(suggestion.name ? suggestion.name : suggestion.id.toString());
+            setName(
+                suggestion.name ? suggestion.name : suggestion.id.toString()
+            );
+            setNameMain(
+                suggestion.name ? suggestion.name : suggestion.id.toString()
+            );
         }
         setEnableSuggestions(false); // Отключаем предложения после выбора
         setId(suggestion.id.toString());
@@ -233,7 +347,7 @@ export function GroupListSelection({
                 onChangeText={handleInputChange}
                 onFocus={handleInputFocus}
             />
-            {isLoading ? <Text>Loading</Text> : null}
+            {isLoading ? <Spinner accessibilityLabel="Загрузка" /> : null}
             <ScrollView>
                 {enableSuggestions &&
                     suggestions.map((item) => (
@@ -242,7 +356,13 @@ export function GroupListSelection({
                             onPress={() => handleSuggestionClick(item)}
                         >
                             <Box>
-                                <Text>{"nameEt" in item ? item.nameEt : ("name" in item ? item.name : item.id.toString())}</Text>
+                                <Text>
+                                    {"nameEt" in item
+                                        ? item.nameEt
+                                        : "name" in item
+                                        ? item.name
+                                        : item.id.toString()}
+                                </Text>
                             </Box>
                         </TouchableOpacity>
                     ))}

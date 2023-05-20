@@ -26,7 +26,7 @@ export function DashboardCellView({ title, icon, page }: { title: string; icon: 
 				onClose={() => {
 					setShowModal(false);
 				}}>
-				<Modal.Content height={screenHeight - 200} width={"100%"} paddingTop='40px'>
+				<Modal.Content height={screenHeight} width={"100%"} paddingTop='40px'>
 					<Modal.CloseButton />
 					<Modal.Body>
                         {page}
