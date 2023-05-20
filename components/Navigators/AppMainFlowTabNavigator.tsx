@@ -16,6 +16,7 @@ function AppMainFlowTabNavigator() {
 					name='Home'
 					component={HomePageView}
 					options={{
+                        headerShown: false,
 						title: "Главная",
 						tabBarIcon: ({ focused, color, size }) => <Ionicons name='home' size={size} color={color} />,
 					}}

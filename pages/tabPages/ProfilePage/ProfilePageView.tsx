@@ -50,7 +50,7 @@ function Settings() {
     const [roomName, setRoomName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        if (groupId) {
+        if (groupId && groupName) {
             AsyncStorage.setItem(
                 "group",
                 JSON.stringify({ id: groupId, name: groupName })
@@ -61,7 +61,7 @@ function Settings() {
     }, [groupId, groupName]);
 
     useEffect(() => {
-        if (teacherId) {
+        if (teacherId && teacherName) {
             AsyncStorage.setItem(
                 "teacher",
                 JSON.stringify({ id: teacherId, name: teacherName })
@@ -72,7 +72,7 @@ function Settings() {
     }, [teacherId, teacherName]);
 
     useEffect(() => {
-        if (roomId) {
+        if (roomId && roomName) {
             AsyncStorage.setItem(
                 "room",
                 JSON.stringify({ id: roomId, name: roomName })
