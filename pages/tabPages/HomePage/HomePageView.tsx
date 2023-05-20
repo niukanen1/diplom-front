@@ -177,7 +177,7 @@ export default function HomePageView() {
                                     numberOfLines={1}
                                     fontWeight={300}
                                 >
-                                    Average mark
+                                    Средняя оценка
                                 </Text>
                             </Flex>
                             <Flex
@@ -211,7 +211,7 @@ export default function HomePageView() {
                                     numberOfLines={1}
                                     fontWeight={300}
                                 >
-                                    Training completed
+                                    Пройдено программы
                                 </Text>
                             </Flex>
                         </Flex>
@@ -265,7 +265,7 @@ export default function HomePageView() {
                             </Flex>
                         )}
                     />
-                    <Heading color={"white"}>Absences</Heading>
+                    <Heading color={"white"}>Отсутствия</Heading>
                     <FlatList
                         data={data.absences}
                         renderItem={({ item }) => (
@@ -310,7 +310,7 @@ export default function HomePageView() {
                             </Flex>
                         )}
                     />
-                    <Heading color={"white"}>Tasks</Heading>
+                    <Heading color={"white"}>Задания</Heading>
                     <FlatList
                         data={data.tasks}
                         renderItem={({ item }) => (

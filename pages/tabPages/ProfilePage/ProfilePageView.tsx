@@ -19,6 +19,7 @@ import {
     reqType,
 } from "../DashboardPage/dashBoardPages/SchedulePage";
 import { useEffect, useState } from "react";
+import { AntDesign } from "@expo/vector-icons";
 
 const StackNavigator = createNativeStackNavigator();
 
@@ -84,19 +85,19 @@ function Settings() {
 
     return (
         <Box>
-            <Heading>Choose default Group</Heading>
+            <Heading>Выберете группу по умолчанию</Heading>
             <GroupListSelection
                 type={reqType.group}
                 setId={setGroupId}
                 setNameMain={setGroupName}
             />
-            <Heading>Choose default Teacher</Heading>
+            <Heading>Выберете учителя по умолчанию</Heading>
             <GroupListSelection
                 type={reqType.teacher}
                 setId={setTeacherId}
                 setNameMain={setTeacherName}
             />
-            <Heading>Choose default Room</Heading>
+            <Heading>Выберете кабинет по умолчанию</Heading>
             <GroupListSelection
                 type={reqType.room}
                 setId={setRoomId}
@@ -111,42 +112,64 @@ export function ProfilePageView({ navigation }: { navigation: any }) {
     const currentUserEmail = auth.currentUser?.email;
     return (
         <Flex justifyContent={"space-between"} h={"100%"}>
-            <Flex
-                direction={"row"}
-                alignItems="flex-start"
-                padding={"20px"}
-                paddingTop={"50px"}
-                borderBottomRightRadius={"50px"}
-                backgroundColor={"#1D8650"}
-            >
-                <Avatar
-                    borderColor={"#ffffff"}
-                    borderWidth={"6"}
-                    size="xl"
-                    source={{ uri: "URL_аватарки" }} // Замените 'URL_аватарки' на URL вашей аватарки
-                />
-                <Box paddingLeft={"15px"}>
-                    <Text color={"white"} fontSize={"26"} fontWeight={"600"}>
-                        {currentUserEmail}
-                    </Text>
-                    <Text color={"white"} fontSize={"18"} fontWeight={"400"}>
-                        {currentUserEmail
-                            ? capitalizeFirstLetter(
-                                  currentUserEmail.split(".")[0]
-                              )
-                            : "-"}{" "}
-                        {currentUserEmail
-                            ? capitalizeFirstLetter(
-                                  currentUserEmail.split(".")[1].split("@")[0]
-                              )
-                            : "-"}
-                    </Text>
-                </Box>
-            </Flex>
+            <Flex>
+                <Flex
+                    direction={"row"}
+                    alignItems="flex-start"
+                    padding={"20px"}
+                    paddingTop={"50px"}
+                    borderBottomRightRadius={"50px"}
+                    backgroundColor={"#1D8650"}
+                >
+                    <Avatar
+                        borderColor={"#ffffff"}
+                        borderWidth={"6"}
+                        size="xl"
+                        source={{ uri: "URL_аватарки" }} // Замените 'URL_аватарки' на URL вашей аватарки
+                    />
+                    <Box paddingLeft={"15px"}>
+                        <Text
+                            color={"white"}
+                            fontSize={"26"}
+                            fontWeight={"600"}
+                        >
+                            {currentUserEmail}
+                        </Text>
+                        <Text
+                            color={"white"}
+                            fontSize={"18"}
+                            fontWeight={"400"}
+                        >
+                            {currentUserEmail
+                                ? capitalizeFirstLetter(
+                                      currentUserEmail.split(".")[0]
+                                  )
+                                : "-"}{" "}
+                            {currentUserEmail
+                                ? capitalizeFirstLetter(
+                                      currentUserEmail
+                                          .split(".")[1]
+                                          .split("@")[0]
+                                  )
+                                : "-"}
+                        </Text>
+                    </Box>
+                </Flex>
 
-            <Button onPress={() => navigation.navigate("Settings")}>
-                Settings
-            </Button>
+                <Flex
+                    width={"100%"}
+                    flexDirection={"row"}
+                    justifyContent={"space-between"}
+                    onTouchEnd={() => navigation.navigate("Settings")}
+                    backgroundColor={"white"}
+                    marginTop={2}
+                    padding={3}
+                    borderRightRadius={20}
+                >
+                    <Text fontSize={16} fontWeight={500}>Настройки</Text>
+                    <AntDesign name="rightcircleo" size={24} color="black" />
+                </Flex>
+            </Flex>
 
             <Button
                 marginBottom={"10px"}
