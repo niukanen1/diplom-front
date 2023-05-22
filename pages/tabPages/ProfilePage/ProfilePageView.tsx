@@ -174,8 +174,12 @@ export function ProfilePageView({ navigation }: { navigation: any }) {
             <Button
                 marginBottom={"10px"}
                 backgroundColor={"red.500"}
-                onPress={() => {
-                    AsyncStorage.removeItem("user").then(() => signOut());
+                onPress={async () => {
+                    await AsyncStorage.removeItem("tahvel-token")
+                    await AsyncStorage.removeItem("group")
+                    await AsyncStorage.removeItem("teacher")
+                    await AsyncStorage.removeItem("room")
+                    await AsyncStorage.removeItem("user").then(() => signOut());
                 }}
                 isLoading={loading}
             >

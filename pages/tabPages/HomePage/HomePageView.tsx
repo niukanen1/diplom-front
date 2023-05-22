@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
     Box,
@@ -12,26 +13,183 @@ import {
     VStack,
     Heading,
     Spinner,
+    Modal,
+    Center,
 } from "native-base";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CircularProgress from "react-native-circular-progress-indicator";
+import Shape from "../../../components/Visual/Shape";
+
 import getGroups from "../../../Services/tahvelApi/getGroups";
 import getRooms from "../../../Services/tahvelApi/getRooms";
 import getTeachers from "../../../Services/tahvelApi/getTeachers";
-import { reqType } from "../DashboardPage/dashBoardPages/SchedulePage";
-import { useState, useEffect } from "react";
 import getTahvelData from "../../../Services/tahvelApi/getTahvelData";
-import CircularProgress from "react-native-circular-progress-indicator";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Shape from "../../../components/Visual/Shape";
+import { ListRenderItem, TouchableOpacity } from "react-native";
+import { mark } from "../../../entities/mark";
+import { BlurView } from "expo-blur";
+import { AntDesign } from "@expo/vector-icons";
+import { absence } from "../../../entities/absence";
+import { task } from "../../../entities/task";
 
-export default function HomePageView() {
+interface TokenInputScreenProps {
+    setInputValue: React.Dispatch<React.SetStateAction<string>>;
+    handleButtonClick: () => void;
+}
+
+function DataBlock({
+    list,
+    heading,
+}: {
+    heading: string;
+    list: mark[] | absence[] | task[];
+}) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handlePress = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const RenderItem = ({ item }: { item: mark | absence | task }) => {
+        const [main, description, value, color = "white", weight = "400"] =
+            "nameEt" in item
+                ? [
+                      item.nameEt,
+                      item.content,
+                      item.grade.code.split("_")[1],
+                      item.grade.code.split("_")[1] == "MA" ? "red" : "white",
+                      item.entryCode?.split("_")[1] == "O" ? 900 : 400,
+                  ]
+                : "absenceCode" in item
+                ? [
+                      item.journalName +
+                          " " +
+                          new Date(item.entryDate).toLocaleDateString(),
+                      item.lessonNrStart + " - " + item.lessonNrEnd + " tund",
+                      item.lessons,
+                  ]
+                : [
+                      item.journalName,
+                      item.taskContent,
+                      new Date(item.date).toLocaleDateString(),
+                  ];
+
+        const flex = "taskContent" in item ? 8 : 9;
+
+        return (
+            <Flex
+                flexDirection="row"
+                marginBottom={2}
+                paddingBottom={2}
+                borderBottomColor={"white"}
+                borderBottomWidth={1}
+                alignItems={"center"}
+            >
+                <Box style={{ flex: flex }}>
+                    <Text color={"white"} numberOfLines={1} fontWeight={400}>
+                        {main}
+                    </Text>
+                    <Text color={"white"} numberOfLines={1} fontWeight={300}>
+                        {description}
+                    </Text>
+                </Box>
+
+                <Text
+                    color={color}
+                    style={{ flex: 10 - flex }}
+                    paddingLeft={4}
+                    fontSize={flex == 9 ? 24 : 10}
+                    fontWeight={weight}
+                >
+                    {value}
+                </Text>
+            </Flex>
+        );
+    };
+
+    return (
+        <View>
+            <TouchableOpacity onPress={handlePress}>
+                <Heading color={"white"} marginBottom={3}>
+                    {heading}
+                </Heading>
+                <Center>
+                    {list.slice(0, 2).map((el) => (
+                        <RenderItem item={el} />
+                    ))}
+
+                    <AntDesign name="downcircleo" size={24} color="white" />
+                </Center>
+            </TouchableOpacity>
+            <Modal isOpen={isModalOpen} onClose={closeModal} width={"100%"}>
+                <Modal.Content
+                    maxWidth="400px"
+                    width={"100%"}
+                    height={"100%"}
+                    backgroundColor={"rgba(29, 134, 80, 1)"}
+                >
+                    <Modal.CloseButton backgroundColor={"white"} padding={1} />
+                    <Modal.Header backgroundColor={"#1D8650"}>
+                        <Heading color={"white"}>{heading}</Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {list.map((el) => (
+                            <RenderItem item={el} />
+                        ))}
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal>
+        </View>
+    );
+}
+
+const LoadingScreen = () => (
+    <Flex
+        height={"100%"}
+        justifyContent="center"
+        marginLeft={10}
+        marginRight={10}
+    >
+        <Spinner accessibilityLabel="Загрузка" size="lg" />
+    </Flex>
+);
+
+const TokenInputScreen = ({
+    setInputValue,
+    handleButtonClick,
+}: TokenInputScreenProps) => (
+    <Flex
+        height={"100%"}
+        justifyContent="center"
+        marginLeft={10}
+        marginRight={10}
+    >
+        <Box>
+            <Input
+                placeholder="Введите токен"
+                onChangeText={(text) => setInputValue(text)}
+                marginBottom={2}
+            />
+            <Button onPress={handleButtonClick}>
+                <Text>Отправить</Text>
+            </Button>
+        </Box>
+    </Flex>
+);
+
+const HomePageView = () => {
     const [token, setToken] = useState<string | null>(null);
     const [inputValue, setInputValue] = useState("");
     const { isLoading, isError, data, error, refetch } = useQuery({
-        queryKey: ["tahvel"],
+        queryKey: ["tahvel", "object"],
         queryFn: async () => {
             if (token) {
                 return await getTahvelData(token);
             }
+            return null;
         },
     });
 
@@ -57,16 +215,7 @@ export default function HomePageView() {
     };
 
     if (isLoading) {
-        return (
-            <Flex
-                height={"100%"}
-                justifyContent="center"
-                marginLeft={10}
-                marginRight={10}
-            >
-                <Spinner accessibilityLabel="Загрузка"  size="lg"/>
-            </Flex>
-        );
+        return <LoadingScreen />;
     } else if (token && data) {
         return (
             <VStack backgroundColor={"white"} borderBottomLeftRadius={20}>
@@ -78,7 +227,6 @@ export default function HomePageView() {
                     top={0}
                     right={0}
                 />
-                
 
                 <Shape
                     color="#095E02"
@@ -89,11 +237,15 @@ export default function HomePageView() {
                     left={0}
                 />
 
-                
-
                 <View width={"100%"} h={8} />
-                <ScrollView padding={5}>
-                    <VStack marginBottom={10} paddingLeft={5} paddingRight={5} backgroundColor={"#1D8650"} borderRightRadius={20}>
+                <ScrollView>
+                    <VStack
+                        marginBottom={10}
+                        padding={5}
+                        backgroundColor={"#1D8650"}
+                        borderBottomRadius={20}
+                        width={"100%"}
+                    >
                         <Flex
                             direction="row"
                             justifyContent={"space-between"}
@@ -169,7 +321,6 @@ export default function HomePageView() {
                                     ]}
                                     progressFormatter={(value: number) => {
                                         "worklet";
-
                                         return Math.floor(value * 100) / 100;
                                     }}
                                 />
@@ -217,165 +368,50 @@ export default function HomePageView() {
                             </Flex>
                         </Flex>
                     </VStack>
-                    <Heading color={"white"}>Marks</Heading>
-                    <FlatList
-                        data={data.marks}
-                        renderItem={({ item }) => (
-                            <Flex
-                                flexDirection="row"
-                                marginBottom={2}
-                                paddingBottom={2}
-                                borderBottomColor={"white"}
-                                borderBottomWidth={1}
-                                alignItems={"center"}
-                            >
-                                <Box style={{ flex: 9 }}>
-                                    <Text
-                                        color={"white"}
-                                        numberOfLines={1}
-                                        fontWeight={400}
-                                    >
-                                        {item.nameEt}
-                                    </Text>
-                                    <Text
-                                        color={"white"}
-                                        numberOfLines={1}
-                                        fontWeight={300}
-                                    >
-                                        {item.content}
-                                    </Text>
-                                </Box>
+                    <View backgroundColor={"rgba(29, 134, 80, 1)"} padding={3} marginBottom={2}>
+                        <DataBlock
+                            list={data.marks}
+                            heading={"Последние оценки"}
+                        />
+                    </View>
+                    <View backgroundColor={"rgba(29, 134, 80, 1)"} padding={3} marginBottom={2}>
+                        <DataBlock
+                            list={data.absences}
+                            heading={"Отсутствия"}
+                        />
+                    </View>
+                    <View backgroundColor={"rgba(29, 134, 80, 1)"} padding={3} marginBottom={2}>
+                        <DataBlock list={data.tasks} heading={"Задания"} />
+                    </View>
 
-                                <Text
-                                    color={
-                                        item.grade.code.split("_")[1] == "MA"
-                                            ? "red"
-                                            : "white"
-                                    }
-                                    style={{ flex: 1 }}
-                                    paddingLeft={4}
-                                    fontSize={24}
-                                    fontWeight={
-                                        item.entryCode?.split("_")[1] == "O"
-                                            ? 900
-                                            : 400
-                                    }
-                                >
-                                    {item.grade.code.split("_")[1]}
-                                </Text>
-                            </Flex>
-                        )}
-                    />
-                    <Heading color={"white"}>Отсутствия</Heading>
-                    <FlatList
-                        data={data.absences}
-                        renderItem={({ item }) => (
-                            <Flex
-                                flexDirection="row"
-                                marginBottom={2}
-                                paddingBottom={2}
-                                borderBottomColor={"white"}
-                                borderBottomWidth={1}
-                                alignItems={"center"}
-                            >
-                                <Box style={{ flex: 9 }}>
-                                    <Text
-                                        color={"white"}
-                                        numberOfLines={1}
-                                        fontWeight={400}
-                                    >
-                                        {item.journalName}{" "}
-                                        {new Date(
-                                            item.entryDate
-                                        ).toLocaleDateString()}
-                                    </Text>
-                                    <Text
-                                        color={"white"}
-                                        numberOfLines={1}
-                                        fontWeight={300}
-                                    >
-                                        {item.lessonNrStart} -{" "}
-                                        {item.lessonNrEnd} tund
-                                    </Text>
-                                </Box>
-
-                                <Text
-                                    color={"white"}
-                                    style={{ flex: 1 }}
-                                    paddingLeft={4}
-                                    fontSize={24}
-                                    fontWeight={400}
-                                >
-                                    {item.lessons}
-                                </Text>
-                            </Flex>
-                        )}
-                    />
-                    <Heading color={"white"}>Задания</Heading>
-                    <FlatList
-                        data={data.tasks}
-                        renderItem={({ item }) => (
-                            <Flex
-                                flexDirection="row"
-                                marginBottom={2}
-                                paddingBottom={2}
-                                borderBottomColor={"white"}
-                                borderBottomWidth={1}
-                                alignItems={"center"}
-                            >
-                                <Box style={{ flex: 8 }}>
-                                    <Text
-                                        color={"white"}
-                                        numberOfLines={1}
-                                        fontWeight={400}
-                                    >
-                                        {item.journalName}
-                                    </Text>
-                                    <Text
-                                        color={"white"}
-                                        numberOfLines={2}
-                                        fontWeight={300}
-                                    >
-                                        {item.taskContent}
-                                    </Text>
-                                </Box>
-
-                                <Text
-                                    color={"white"}
-                                    style={{ flex: 2 }}
-                                    paddingLeft={4}
-                                    fontSize={12}
-                                    fontWeight={400}
-                                >
-                                    {new Date(item.date).toLocaleDateString()}
-                                </Text>
-                            </Flex>
-                        )}
-                    />
                     <View width={"100%"} h={20} />
                 </ScrollView>
-                
+            </VStack>
+        );
+    } else if (isError) {
+        return (
+            <VStack
+                backgroundColor={"white"}
+                height={"100%"}
+                justifyContent={"center"}
+            >
+                <Heading>Ошибка получения данных</Heading>
+                <Text>
+                    Проверьте токен и интернет соединение и попробуйте снова
+                </Text>
+                <Button onPress={() => refetch()}>
+                    <Text>Повторить</Text>
+                </Button>
             </VStack>
         );
     } else {
         return (
-            <Flex
-                height={"100%"}
-                justifyContent="center"
-                marginLeft={10}
-                marginRight={10}
-            >
-                <Box>
-                    <Input
-                        placeholder="Введите токен"
-                        onChangeText={(text) => setInputValue(text)}
-                        marginBottom={2}
-                    />
-                    <Button onPress={handleButtonClick}>
-                        <Text>Отправить</Text>
-                    </Button>
-                </Box>
-            </Flex>
+            <TokenInputScreen
+                setInputValue={setInputValue}
+                handleButtonClick={handleButtonClick}
+            />
         );
     }
-}
+};
+
+export default HomePageView;
