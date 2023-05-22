@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import JoinCouncilModal from "../../../../components/Council/JoinCouncilList";
 import JoinCouncilList from "../../../../components/Council/JoinCouncilList";
 import { Dimensions } from "react-native";
+import MemberList from "../../../../components/CouncilAdmin/MemberList/MemberList";
 function CouncilMembersPage() {
 	const [councilMemberData, setCouncilMemberData] = useState<councilMember | undefined>(undefined);
 	const [value, loading, error] = useDocument(doc(db, "councilUsers", `${auth.currentUser?.uid}`));
@@ -38,7 +39,7 @@ function CouncilMembersPage() {
 					</>
 				) : (
 					<>
-						<CouncilMembersList />
+						<MemberList />
 					</>
 				)}
 			</Box>
@@ -51,9 +52,9 @@ function CouncilMembersPage() {
 	);
 }
 
-const CouncilMembersList = () => {
+const CouncilMembersList = ({councilId}: {councilId: string}) => {
 	const [value, loading, error] = useCollection(
-		query(collection(db, "councilUsers"), where("councilId", "==", `${AppStore.currentCouncilId}`))
+		query(collection(db, "councilUsers"), where("councilId", "==", councilId))
 	);
 	return (
 		<>
@@ -62,10 +63,10 @@ const CouncilMembersList = () => {
 				{value?.docs.map((user) => {
 					const userData = user.data() as councilMember;
 					return (
-						<>
+						<Box key={userData.userUid}>
 							<Text>{userData.status}</Text>
 							<Text>{userData.userUid}</Text>
-						</>
+						</Box>
 					);
 				})}
 			</ScrollView>

@@ -1,5 +1,5 @@
 import { doc } from "firebase/firestore";
-import { ScrollView, Text } from "native-base";
+import { Heading, ScrollView, Text } from "native-base";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { db } from "../../Services/firebase/firebaseinit";
 import { useEffect, useState } from "react";

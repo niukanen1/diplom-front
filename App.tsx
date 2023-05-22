@@ -12,12 +12,13 @@ import { observer } from "mobx-react-lite";
 import AppStore from "./Stores/AppStore";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { doc } from "firebase/firestore";
-import { adminData } from "./entities/council";
+import { adminData, councilMember } from "./entities/council";
 
 const queryClient = new QueryClient();
 
 function App() {
 	const [user, loading, error] = useAuthState(auth);
+    const [valueCouncilUser, loadingCouncil, errorCouncil] = useDocument(doc(db, "councilUsers", `${auth.currentUser?.uid}`));
     const [value, isLoading, ERR] = useDocument(doc(db, 'admins', `${user?.uid}`));
     useEffect(() => { 
         if (value?.data()) { 
@@ -28,6 +29,11 @@ function App() {
             // console.log("deleting");
         }
     }, [value])
+    useEffect(() => { 
+        if (valueCouncilUser?.data()) { 
+            AppStore.currentCouncilId = (valueCouncilUser.data() as councilMember).councilId
+        }
+    }, [valueCouncilUser])
 	return (
 		<QueryClientProvider client={queryClient}>
 			<NativeBaseProvider>

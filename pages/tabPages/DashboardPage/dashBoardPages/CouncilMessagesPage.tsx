@@ -10,6 +10,7 @@ import { councilMember } from "../../../../entities/council";
 import { status } from "../../../../entities/council";
 import MessagesList from "../../../../components/Council/MessagesList";
 import { getCouncilAdminUid } from "../../../../Services/firebase/queries/CouncilQueries";
+import AppStore from "../../../../Stores/AppStore";
 
 function CouncilMessagesPage() {
 	const [councilMemberData, setCouncilMemberData] = useState<councilMember | undefined>(undefined);
@@ -25,14 +26,20 @@ function CouncilMessagesPage() {
 		}
 	}, [value]);
     useEffect(() => { 
-        getCouncilAdminUid(councilMemberData?.councilId ?? "").then(adminUid => {
-            setAdminUid(adminUid)
-            console.log(adminUid);
-        }).catch(err => { 
-            console.log("errr");
-            console.log(err);
-        }) 
-    }, [])
+        if (AppStore.currentCouncilId) { 
+            getCouncilAdminUid(AppStore.currentCouncilId).then(adminUid => {
+                if (adminUid) { 
+                    setAdminUid(adminUid)
+                }
+             
+                // console.log(adminUid);
+            }).catch(err => { 
+                console.log("errr");
+                console.log(err);
+            }) 
+        }
+        
+    }, [AppStore.currentCouncilId])
     const height = Dimensions.get("screen").height
 	return (
 		<>  
