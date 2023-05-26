@@ -14,6 +14,9 @@ export function DashboardPage() {
 					data={data}
 					padding={"10px"}
 					numColumns={2}
+                    ItemSeparatorComponent={() => ( 
+                        <Box height={"10px"}></Box>  
+                    )}
                     columnWrapperStyle={{justifyContent: 'space-between'}}
 					renderItem={(item) => {
 						return (

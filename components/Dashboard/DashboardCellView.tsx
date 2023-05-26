@@ -7,8 +7,8 @@ export function DashboardCellView({ title, icon, page }: { title: string; icon: 
 	const screenHeight = Dimensions.get("window").height;
 	return (
 		<>
-			<Pressable onPress={() => setShowModal(true)}>
-				<Box backgroundColor={"green.600"} padding={"10px"} borderRadius={"10px"}>
+			<Pressable onPress={() => setShowModal(true)}  width={"170px"} >
+				<Box backgroundColor={"green.600"} padding={"10px"} borderRadius={"10px"}height={'110px'} >
 					<VStack alignItems={"center"}>
 						<HStack>
 							{icon}
@@ -16,7 +16,7 @@ export function DashboardCellView({ title, icon, page }: { title: string; icon: 
 						</HStack>
 
 						<Spacer />
-						<Heading color={"white"}>{title}</Heading>
+						<Heading alignSelf={'flex-start'} color={"white"}>{title}</Heading>
 					</VStack>
 				</Box>
 			</Pressable>
